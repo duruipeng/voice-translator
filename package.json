@@ -1,5 +1,5 @@
 {
-  "name": "speech-to-text",
+  "name": "voice-translator",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
