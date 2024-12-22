@@ -1,7 +1,11 @@
 # Welcome to your Expo app 👋
 
-This is a React Native (Expo)-based starter app for using the Google Cloud Speech-to-Text API with Gemini2.0 exp. You can make universal native apps for Android, iOS, and the web with JavaScript and React. 
-[Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This is a serverless React Native (Expo)-based translation app for using the Google Cloud with Gemini2.0 exp. You can make universal native apps for Android, iOS, and the web with JavaScript and React. Selected 3 APIs: Generative Language API, Cloud Speech-to-Text API, Cloud Text-to-Speech API.
+
+## Features
+- Speech-to-text transcription.
+- Translate text to Chinese, English, and Japanese using Gemini 2.0 exp.
+- Text-to-speech audio playback.
 
 ## Get started
 
@@ -14,17 +18,8 @@ This is a React Native (Expo)-based starter app for using the Google Cloud Speec
 2. Start the app
 
    ```bash
-    npx expo start
+    npm start
    ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
 ## Get a fresh project
 
@@ -36,16 +31,8 @@ npm run reset-project
 
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
-## Learn more
+## Demo
 
-To learn more about developing your project with Expo, look at the following resources:
+To let you try the app I have provided an entire applications on below blog:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- [Demo](https://duruipeng.github.io/myblog/): Enter the blog and click "语言翻译" to try.
