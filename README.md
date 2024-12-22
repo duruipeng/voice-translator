@@ -4,7 +4,7 @@ This is a serverless React Native (Expo)-based translation app that uses the Gem
 
 ## Features
 - Speech-to-text transcription.
-- Translate text to Chinese, English, and Japanese using Gemini 2.0 exp.
+- Translate text to English, Japanese, and Chinese using Gemini 2.0 exp.
 - Text-to-speech audio playback.
 
 ## Get started
@@ -21,7 +21,7 @@ This is a serverless React Native (Expo)-based translation app that uses the Gem
     npm start
    ```
 
-3. Select 'w' to launch in web mode or select 'a' to launch in android mode.
+3. Select 'w' to launch in web mode or select 'a' to launch in android mode or select 'i' to launch in iOS mode.
 
 ## Get a fresh project
 
