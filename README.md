@@ -1,6 +1,6 @@
 # Welcome to your translation app 👋
 
-This is a serverless React Native (Expo)-based translation app for using the Google Cloud with Gemini 2.0 exp. You can make universal native apps for Android, iOS, and the web with JavaScript and React. It selected 3 APIs: Generative Language API, Cloud Speech-to-Text API, Cloud Text-to-Speech API. You can enable them on Google Cloud.
+This is a serverless React Native (Expo)-based translation app that uses the Gemini 2.0 experimental model with Google Cloud. It allows you to create universal native apps for Android, iOS, and the web using JavaScript and React. It utilizes three APIs: the Generative Language API, Cloud Speech-to-Text API, and Cloud Text-to-Speech API. You can enable these APIs on Google Cloud.
 
 ## Features
 - Speech-to-text transcription.
@@ -21,6 +21,8 @@ This is a serverless React Native (Expo)-based translation app for using the Goo
     npm start
    ```
 
+3. Select 'w' to launch in web mode or select 'a' to launch in android mode.
+
 ## Get a fresh project
 
 When you're ready, run:
@@ -33,6 +35,6 @@ This command will move the starter code to the **app-example** directory and cre
 
 ## Demo
 
-To let you try the app I have provided an entire applications on below blog:
+To help you experience the application, I have provided the entire application on the blog below:
 
 - [Demo](https://duruipeng.github.io/myblog/): Enter the blog and click "语言翻译" to try.
