@@ -110,7 +110,7 @@ export default function HomeScreen() {
     setIsTranslating(true);
     try {
       const response = await googleapi(
-        `${transcribedSpeech}\n Please tranlate these sentences to  ${prompt}. Only reply the best translation without other words.`,
+        `${transcribedSpeech}\n Please translate these sentences to ${prompt}. Only reply the best translation without other words.`,
         apiKey,
         "gemini-2.0-flash-exp"
       );
