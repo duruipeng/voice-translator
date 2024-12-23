@@ -23,16 +23,6 @@ This is a serverless React Native (Expo)-based translation app that uses the Gem
 
 3. Select 'w' to launch in web mode or select 'a' to launch in android mode or select 'i' to launch in iOS mode.
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
 ## Demo
 
 To help you experience the application, I have provided the entire application on the blog below:

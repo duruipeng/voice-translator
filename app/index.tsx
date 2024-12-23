@@ -10,42 +10,32 @@ import {
   TextInput,
   Platform,
 } from "react-native";
-import { Audio } from "expo-av";
-import { transcribeSpeech } from "@/functions/transcribeSpeech";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { recordSpeech } from "@/functions/recordSpeech";
-import useWebFocus from "@/hooks/useWebFocus";
 import React from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { googleapi } from '../functions/googleapi';
+import { useTranscription } from "@/hooks/useTranscription";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
 
 export default function HomeScreen() {
-  const [transcribedSpeech, setTranscribedSpeech] = useState("");
-  const [translation, setTranslation] = useState("");
-  const [isRecording, setIsRecording] = useState(false);
-  const [isTranscribing, setIsTranscribing] = useState(false);
-  const [isTranslating, setIsTranslating] = useState(false);
-  const [apiKey, setApiKey] = useState('');
-  const [isPaused, setIsPaused] = useState(false);
+  const [apiKey, setApiKey] = useState("");
   const [voicesWeb, setVoicesWeb] = useState<SpeechSynthesisVoice[]>([]);
-  const [selectedVoice, setSelectedVoice] = useState('');
-  const isWebFocused = useWebFocus();
-  const audioRecordingRef = useRef(new Audio.Recording());
   const webAudioPermissionsRef = useRef<MediaStream | null>(null);
+  const { transcribedSpeech, isRecording, isTranscribing, setIsRecording, setIsTranscribing, setTranscribedSpeech, startRecording, stopRecording } =
+    useTranscription(apiKey, webAudioPermissionsRef);
+  const { translation, isTranslating, selectedVoice, translate, setTranslation, setIsTranslating } = useTranslation(apiKey);
+  const { isPaused, speak, stop } = useSpeechSynthesis();
 
   useEffect(() => {
-    const loadTranscription = async () => {
+    const loadApiKey = async () => {
       try {
         const voiceTranslatorApiKey = await AsyncStorage.getItem("voiceTranslatorApiKey");
         if (voiceTranslatorApiKey) setApiKey(voiceTranslatorApiKey);
-
-        const savedTranscription = await AsyncStorage.getItem("savedTranscription");
-        if (savedTranscription) setTranscribedSpeech(savedTranscription);
       } catch (error) {
         console.error("failed:", error);
       }
     };
-    loadTranscription();
+    loadApiKey();
 
     const fetchVoices = () => {
       if (Platform.OS === "web") {
@@ -60,69 +50,14 @@ export default function HomeScreen() {
     }
   }, []);
 
-  useEffect(() => {
-    if (isWebFocused) {
-      const requestMicAccess = async () => {
-        try {
-          const permissions = await navigator.mediaDevices.getUserMedia({ audio: true });
-          webAudioPermissionsRef.current = permissions;
-        } catch (error) {
-          console.error("Microphone access error:", error);
-        }
-      };
-      if (!webAudioPermissionsRef.current) requestMicAccess();
-    } else {
-      webAudioPermissionsRef.current?.getTracks().forEach((track) => track.stop());
-      webAudioPermissionsRef.current = null;
-    }
-  }, [isWebFocused]);
-
-  useEffect(() => {
-    if (transcribedSpeech) saveTranscription();
-  }, [transcribedSpeech]);
-
-  const startRecording = async () => {
-    setIsRecording(true);
-    await recordSpeech(audioRecordingRef, setIsRecording, !!webAudioPermissionsRef.current);
-  };
-
-  const stopRecording = async () => {
-    setIsRecording(false);
-    setIsTranscribing(true);
-    try {
-      const transcript = await transcribeSpeech(audioRecordingRef, apiKey);
-      if (transcript) {
-        setTranscribedSpeech((prev) => prev? `${prev || ''}\n${transcript}。` : `${transcript}。`);
-      }
-    } catch (error) {
-      console.error("Transcription error:", error);
-    } finally {
-      setIsTranscribing(false);
-    }
-  };
-
-  const handleInputChange = async (text: any) => {
+  const handleInputChange = async (text: string) => {
     await AsyncStorage.setItem("voiceTranslatorApiKey", text);
     setApiKey(text);
   };
 
-  const handleTranslation = async (language: "zh-CN" | "en-US" | "ja-JP", prompt: string) => {
-    setIsTranslating(true);
-    try {
-      const response = await googleapi(
-        `${transcribedSpeech}\n Please translate these sentences to ${prompt}. Only reply the best translation without other words.`,
-        apiKey,
-        "gemini-2.0-flash-exp"
-      );
-      if (response) {
-        setTranslation(response);
-        setSelectedVoice(language);
-      }
-    } catch (error) {
-      console.error("Translation error:", error);
-    } finally {
-      setIsTranslating(false);
-    }
+  const handleSpeak = () => {
+    const voice = voicesWeb.find((v) => v.lang === selectedVoice);
+    speak(translation, voice ?? null, selectedVoice);
   };
 
   const saveTranscription = async () => {
@@ -132,72 +67,15 @@ export default function HomeScreen() {
       console.error("Error saving transcription:", error);
     }
   };
-
-  const clearTranscription = async () => {
-    try {
-      await AsyncStorage.setItem("savedTranscription", "");
-      setTranscribedSpeech("");
-      setTranslation("");
-      setIsRecording(false);
-      setIsTranscribing(false);
-      setIsTranslating(false);
-    } catch (error) {
-      console.error("Error clearing transcription:", error);
-    }
+  
+  const clearTranscription = () => {
+    AsyncStorage.setItem("savedTranscription", "").catch(console.error);
+    setTranscribedSpeech("");
+    setTranslation("");
+    setIsRecording(false);
+    setIsTranscribing(false);
+    setIsTranslating(false);
   };
-
-  const handleSpeak = async () => {
-    if (!translation) {
-      alert("Please input translation！");
-      return;
-    }
-    setIsPaused(true);
-
-    if (Platform.OS === "web") {
-      const voice = voicesWeb.find((v) => v.lang === selectedVoice);
-      const utterance = new SpeechSynthesisUtterance(translation);
-      utterance.voice = voice ?? null;
-      utterance.lang = voice?.lang || "en-US";
-      
-      utterance.onstart = () => {
-        console.log("Speech started");
-        setIsPaused(true);
-      };
-
-      
-      utterance.onend = () => {
-        console.log("Speech finished");
-        setIsPaused(false);
-      };
-
-      utterance.onerror = (e) => {
-        console.error("Speech error:", e);
-      };
-
-      window.speechSynthesis.speak(utterance);
-    } else {
-      import("expo-speech").then((Speech) => {
-        Speech.speak(translation, {
-          language: selectedVoice,
-          pitch: 1.0,
-          rate: 1.0,
-          onDone: () => setIsPaused(false),
-          onStopped: () => setIsPaused(false),
-        });
-      });
-    }
-  };
-
-  const stopSpeak = () => {
-    if (Platform.OS === "web") {
-      window.speechSynthesis.cancel();
-      setIsPaused(false);
-    } else {
-      import("expo-speech").then((Speech) => Speech.stop());
-    }
-    setIsPaused(false);
-  };
-
 
   return (
     <SafeAreaView>
@@ -235,26 +113,26 @@ export default function HomeScreen() {
           <View style={styles.rowContainer}>
             <TouchableOpacity
               style={styles.saveButton}
-              onPress={() => handleTranslation("zh-CN", "Chinese")}
+              onPress={() => translate(transcribedSpeech, "zh-CN", "Chinese")}
             >
               <Text style={styles.saveButtonText}>CN</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.saveButton}
-              onPress={() => handleTranslation("en-US", "English")}
+              onPress={() => translate(transcribedSpeech, "en-US", "English")}
             >
               <Text style={styles.saveButtonText}>EN</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.saveButton}
-              onPress={() => handleTranslation("ja-JP", "Japanese")}
+              onPress={() => translate(transcribedSpeech, "ja-JP", "Japanese")}
             >
               <Text style={styles.saveButtonText}>JP</Text>
             </TouchableOpacity>
             {isPaused ? 
             (<TouchableOpacity
               style={styles.saveButton}
-              onPress={stopSpeak} 
+              onPress={stop} 
               accessible={true}
               accessibilityLabel="stop"
             >
